@@ -11,7 +11,7 @@ openai.api_key = openai_api_key = os.environ['OAI_SERVER_API_KEY']
 if 'HOMEBREW_PREFIX' in os.environ:
     openai.api_base = openai_api_base = "http://127.0.0.1:8081"
 elif 'BITNAMI_APP_NAME' in os.environ:
-    openai.api_base = openai_api_base = "http:localhost//10001"
+    openai.api_base = openai_api_base = "http://localhost:10001"
 else:
     raise ValueError('Did not detect HOMEBREW_PREFIX (Mac, local) or BITNAMI_APP_NAME (Lightsail, remote) in environment variables.')
 # openai.api_base = openai_api_base = "https://www.ericmusa.com"
