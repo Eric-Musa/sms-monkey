@@ -1,7 +1,8 @@
 #!/bin/bash
 
 IMAGE_NAME="sms-monkey-flask"
-RUN_COMMAND="sudo docker run -d -p 5000:5000 $IMAGE_NAME"
+# RUN_COMMAND="sudo docker run -d -p 5000:5000 $IMAGE_NAME"
+RUN_COMMAND="sudo docker run -d --net=host $IMAGE_NAME"
 CONTAINER_NAME=$(sudo docker ps --filter "ancestor=$IMAGE_NAME" --format "{{.Names}}")
 
 # Function to check if the container with the specified image is running
