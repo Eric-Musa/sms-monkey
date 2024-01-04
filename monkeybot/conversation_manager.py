@@ -90,7 +90,7 @@ class ConversationManager:
             print('RESETTING MESSAGE HISTORY')
             print()
             self.reset_conversation()
-            return
+            return 'CONVERSATION RESET'
         self.messages.append({'role': 'user', 'content': user_input})
         chat_completion = openai.ChatCompletion.create(model=self.active_model, messages=self.messages, max_tokens=max_tokens)
         ai_response = chat_completion.choices[0].message.content
@@ -100,6 +100,7 @@ class ConversationManager:
         self.print_message(self.messages[-1])
         with open(os.path.join(self.directory, self.filename), 'w') as f:
             json.dump(self.messages, f)
+        return trimmed_ai_response
 
     @staticmethod
     def print_message(message):
