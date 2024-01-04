@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cd /home/bitnami/sms-monkey/
+
+source .venv/bin/activate
+
+flask run

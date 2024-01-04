@@ -1,0 +1,51 @@
+#!/bin/bash
+
+IMAGE_NAME="sms-monkey-flask"
+RUN_COMMAND="sudo docker run -d -p 5000:5000 $IMAGE_NAME"
+CONTAINER_NAME=$(sudo docker ps --filter "ancestor=$IMAGE_NAME" --format "{{.Names}}")
+
+# Function to check if the container with the specified image is running
+is_container_running() {
+  running=$(echo $CONTAINER_NAME | wc -l)
+  echo $running
+}
+
+# Function to build the image
+build_image() {
+  echo "Building container $IMAGE_NAME"
+  sudo docker build -t $IMAGE_NAME .
+  RESTART=true
+}
+
+# Check command-line arguments
+RESTART=false
+BUILD=false
+
+while getopts "rb" opt; do
+  case $opt in
+    r) RESTART=true ;;
+    b) BUILD=true ;;
+    *) echo "Usage: $0 [-r] [-b]" && exit 1 ;;
+  esac
+done
+
+# If the -b flag is provided, build the image
+if $BUILD; then
+  build_image
+fi
+
+# If the -r flag is provided, or no container is running, run/re-run the container
+if $RESTART || [ $(is_container_running) -eq 0 ]; then
+  # Stop running container if any
+  if [ $(is_container_running) -eq 1 ]; then
+    echo "Stopping container $CONTAINER_NAME"
+    sudo docker stop $CONTAINER_NAME
+  fi
+  echo "Starting container for $IMAGE_NAME"
+  $RUN_COMMAND
+  CONTAINER_NAME=$(sudo docker ps --filter "ancestor=$IMAGE_NAME" --format "{{.Names}}")
+  is_container_running
+  echo "Container for $IMAGE_NAME running: $CONTAINER_NAME"
+else
+  echo "Container for $IMAGE_NAME is running: $CONTAINER_NAME"
+fi
