@@ -1,11 +1,9 @@
-from flask import Flask, request
+from flask import Flask
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from twilio.twiml.messaging_response import MessagingResponse
-from monkeybot import ConversationManager
 
 app = Flask(__name__)
-# cm = ConversationManager()
 
 limiter = Limiter(
     get_remote_address,
@@ -18,8 +16,6 @@ limiter = Limiter(
 @limiter.limit("20/minute", override_defaults=True)
 def sms_reply():
     """Respond to incoming calls with a simple text message."""
-    body = request.values.get('Body', None)
-    print(body)
     # Start our TwiML response
     resp = MessagingResponse()
 

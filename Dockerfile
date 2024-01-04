@@ -1,5 +1,5 @@
 # Use the lightweight Alpine-based Python 3.10 image as a base image
-FROM python:3.10-alpine
+FROM python:3.11-alpine
 
 # Set the working directory inside the container
 WORKDIR /usr/src/app
@@ -16,7 +16,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code into the container
 COPY app.py .
-# COPY src/ src/
+COPY .env .
+COPY monkeybot/ monkeybot/
 
 # Expose the Flask default port
 EXPOSE 5000
