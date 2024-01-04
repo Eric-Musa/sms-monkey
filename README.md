@@ -69,10 +69,20 @@ accessible inside the instance by `flask run` and then `curl 127.0.0.1:5000/api`
 
 5. Added new ProxyPass for my LLaMa2 models:
   # API Proxy
-  ProxyPass /api http://127.0.0.1:10081/chat/completions
-  ProxyPassReverse /api http://127.0.0.1:10081/chat/completions
-  ProxyPass /api http://127.0.0.1:10081/completions
-  ProxyPassReverse /api http://127.0.0.1:10081/completions
-  ...
+```
+  <IfModule mod_proxy.c>
+    ProxyPass /.well-known !
+  </IfModule>
+  # END: Support domain renewal when using mod_proxy without Location
 
-  but its not working yet...
+  # API Proxy
+  ProxyPass /sms-monkey http://127.0.0.1:5000/sms-monkey
+  ProxyPassReverse /sms-monkey http://127.0.0.1:5000/sms-monkey
+
+  # ProxyPass /chat/completions http://127.0.0.1:10001/chat/completions
+  # ProxyPassReverse /chat/completions http://127.0.0.1:10001/chat/completions
+  # ProxyPass /completions http://127.0.0.1:10001/completions
+  # ProxyPassReverse /completions http://127.0.0.1:10001/completions
+
+  # BEGIN: Enable non-www to www redirection
+```
