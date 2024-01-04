@@ -40,7 +40,6 @@ class ConversationManager:
             os.mkdir(directory)
         self.directory = directory
         self.messages, self.filename = self.load_conversation()
-        self.active_model = self.get_model()['model_name']
 
     def get_latest_conversation(self):
         latest_filenum = -1
@@ -86,7 +85,7 @@ class ConversationManager:
         self.filename = filename
 
     def get_model(self, headers=auth_headers):
-        return requests.get(url=f'{openai_api_base}/model', headers=headers).json()
+        return requests.get(url=f'{openai_api_base}/model', headers=headers).json()['model_name']
 
     def complete_chat(self, user_input, max_tokens=64):
         if user_input == 'RESTART':
@@ -97,7 +96,7 @@ class ConversationManager:
             self.reset_conversation()
             return 'CONVERSATION RESET'
         self.messages.append({'role': 'user', 'content': user_input})
-        chat_completion = openai.ChatCompletion.create(model=self.active_model, messages=self.messages, max_tokens=max_tokens)
+        chat_completion = openai.ChatCompletion.create(model=self.get_model(), messages=self.messages, max_tokens=max_tokens)
         ai_response = chat_completion.choices[0].message.content
         trimmed_ai_response = self.trim_incomplete_response(ai_response, comma_is_delimiter=True)
         self.messages.append({'role': 'assistant', 'content': trimmed_ai_response})
@@ -115,7 +114,7 @@ class ConversationManager:
     def trim_incomplete_response(self, response, delimiters=('.', '!', '?'), comma_is_delimiter=False):
         if not response.endswith(delimiters):
             i = len(response)
-            while i>0:
+            while i > 0:
                 i -= 1
                 if response[i] in delimiters:
                     return response[:i+1]
