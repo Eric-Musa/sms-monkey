@@ -20,7 +20,9 @@ def sms_reply():
     """Respond to incoming calls with a simple text message."""
     user_input = request.values.get('Body', None)
     user_number = request.values.get('From', None)
-    trimmed_ai_response = cm.complete_chat(user_input)
+    print(f'Incoming message from {user_number}: """{user_input}"""', flush=True)
+    trimmed_ai_response, convo_length = cm.complete_chat(user_input, user_number)
+    print(f'Response (msg #{convo_length}) to {user_number}: """{trimmed_ai_response}"""', flush=True)
     # print(body)
     # print('headers', request.headers, flush=True)
     # print('cookies', request.cookies, flush=True)
