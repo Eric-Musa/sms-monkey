@@ -19,13 +19,24 @@ limiter = Limiter(
 def sms_reply():
     """Respond to incoming calls with a simple text message."""
     user_input = request.values.get('Body', None)
+    user_number = request.values.get('From', None)
     trimmed_ai_response = cm.complete_chat(user_input)
     # print(body)
+    # print('headers', request.headers, flush=True)
+    # print('cookies', request.cookies, flush=True)
+    # print('data', request.data, flush=True)
+    # print('args', request.args, flush=True)
+    # print('FORM', request.form, flush=True)
+    # print('VALUES', request.values, flush=True)
+    # print('endpoint', request.endpoint, flush=True)
+    # print('method', request.method, flush=True)
+    # print('remote_addr', request.remote_addr, flush=True)
     # Start our TwiML response
     resp = MessagingResponse()
 
     # Add a message
     resp.message(trimmed_ai_response)
+    # resp.message('debugging')
 
     return str(resp)
 
