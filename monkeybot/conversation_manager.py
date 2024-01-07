@@ -1,28 +1,9 @@
-import dotenv
-dotenv.load_dotenv()
 import hashlib
 import json
-import openai
 import os
 import re
-import requests
 import time
-
-
-openai.api_key = openai_api_key = os.environ['OAI_SERVER_API_KEY']
-if 'HOMEBREW_PREFIX' in os.environ:
-    openai.api_base = openai_api_base = "http://127.0.0.1:8081"
-# elif 'BITNAMI_APP_NAME' in os.environ:
-#     openai.api_base = openai_api_base = "http://localhost:10001"
-else:
-    openai.api_base = openai_api_base = "http://localhost:10001"
-    # raise ValueError('Did not detect HOMEBREW_PREFIX (Mac, local) or BITNAMI_APP_NAME (Lightsail, remote) in environment variables.')
-# openai.api_base = openai_api_base = "https://www.ericmusa.com"
-
-auth_headers = {
-    'Authorization': f'Bearer {openai_api_key}',
-    'Content-Type': 'application/json',
-}
+from llm_chat import chat, BUSY_MESSAGE
 
 class ConversationManager:
     
@@ -57,10 +38,6 @@ class ConversationManager:
         # Return the hexadecimal digest of the user ID.
         return hash_object.hexdigest()
         # return str(hash(str(user_number)))
-
-    @staticmethod
-    def get_model(headers=auth_headers):
-        return requests.get(url=f'{openai_api_base}/model', headers=headers).json()['model_name']
 
     def get_latest_conversation(self, conversation_directory):
         latest_filenum = -1
@@ -122,12 +99,14 @@ class ConversationManager:
             return f'Conversation Reset... {self.PRIMER[-1]["content"]}', len(self.PRIMER)
         
         messages, filename = self.load_conversation(conversation_directory)
-        messages.append({'role': 'user', 'content': user_input})
         
-        chat_completion = openai.ChatCompletion.create(model=self.get_model(), messages=messages, max_tokens=max_tokens)
-        ai_response = chat_completion.choices[0].message.content
+        ai_response = chat(messages, max_tokens)
+        if ai_response == BUSY_MESSAGE:
+            return BUSY_MESSAGE, len(messages)
+
         trimmed_ai_response = self.trim_incomplete_response(ai_response, comma_is_delimiter=True)
         
+        messages.append({'role': 'user', 'content': user_input})
         messages.append({'role': 'assistant', 'content': trimmed_ai_response})
         # messages.append({'role': 'AI', 'content': trimmed_ai_response})
         self.print_message(messages[-1])
