@@ -2,8 +2,9 @@ import hashlib
 import json
 import os
 import re
+from string import ascii_letters as LETTERS
 import time
-from llm_chat import chat, BUSY_MESSAGE
+from .llm_chat import chat, BUSY_MESSAGE
 
 class ConversationManager:
     
@@ -119,16 +120,31 @@ class ConversationManager:
         if self.verbose: print(f"{message['role']}: {message['content']}")
 
     @staticmethod
-    def trim_incomplete_response(response, delimiters=('.', '!', '?'), comma_is_delimiter=False):
+    def trim_incomplete_response(
+            response, 
+            delimiters=('.', '!', '?'), 
+            comma_is_delimiter=False,
+            delim_follows_text=0,
+            cutoff_str='...',
+            strip_ws=True,
+            ):
         if not response.endswith(delimiters):
+            assert delim_follows_text < len(response), 'delim_follows_text must be less than the length of the response'
             i = len(response)
             while i > 0:
                 i -= 1
                 if response[i] in delimiters:
-                    return response[:i+1]
+                    if delim_follows_text > 0 and \
+                        all(_ in LETTERS for _ in response[i-delim_follows_text:i]):
+                        pass
+                    else:
+                        continue
+                    response = response[:i+1]
+                    break
                 elif response[i] == ',' and comma_is_delimiter:
-                    return response[:i] + '...'
-        return response
+                    response = response[:i] + cutoff_str
+                    break
+        return response.strip() if strip_ws else response
 
 
 if __name__ == '__main__':
