@@ -24,14 +24,17 @@ auth_headers = {
 }
 
 
-def get_model(headers=auth_headers):
-    return requests.get(url=f'{openai_api_base}/model', headers=headers).json()['model_name']
+# def get_model(headers=auth_headers):
+#     model = requests.get(url=f'{openai_api_base}/model', headers=headers).json()  # ['model_name']
+#     print('model:', model)
+#     return model
 
 
 def chat(messages, max_tokens, retries=3, timeout=2):
     for _ in range(retries):
         try:
-            chat_completion = openai.ChatCompletion.create(model=get_model(), messages=messages, max_tokens=max_tokens)
+            # chat_completion = openai.ChatCompletion.create(model=get_model(), messages=messages, max_tokens=max_tokens)
+            chat_completion = openai.ChatCompletion.create(model='local-llm', messages=messages, max_tokens=max_tokens)
             return chat_completion.choices[0].message.content
         except APIError as e:
             print(e)

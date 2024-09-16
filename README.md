@@ -4,11 +4,11 @@ Dockerized Twilio application to be hosted in my AWS Lightsail instance - Github
 
 ### HOW TO RUN THIS APP BESIDE WORDPRESS
 
-1. Added:
+1. To reroute requests to `ericmusa.com/sms-monkey` from WordPress to my own App, I added:
 ```
-# API Proxy
-ProxyPass /api/ http://127.0.0.1:5000/api/
-ProxyPassReverse /api/ http://127.0.0.1:5000/api/
+  # API Proxy
+  ProxyPass /sms-monkey http://127.0.0.1:5000/sms-monkey
+  ProxyPassReverse /sms-monkey http://127.0.0.1:5000/sms-monkey
 ```
 to the top of `/home/bitnami/stack/apache/conf/vhosts/wordpress-https-vhost.conf`:
 ```
@@ -29,8 +29,8 @@ to the top of `/home/bitnami/stack/apache/conf/vhosts/wordpress-https-vhost.conf
   # END: Support domain renewal when using mod_proxy without Location
 
   # API Proxy
-  ProxyPass /api http://127.0.0.1:5000/api
-  ProxyPassReverse /api http://127.0.0.1:5000/api
+  ProxyPass /api http://127.0.0.1:5000/sms-monkey
+  ProxyPassReverse /api http://127.0.0.1:5000/sms-monkey
   ...
 
 ```
@@ -66,23 +66,4 @@ accessible inside the instance by `flask run` and then `curl 127.0.0.1:5000/api`
 `sudo run_docker -r` stops any running container and starts a new one
 `sudo run_docker -b` or `sudo run_docker -rb` rebuild and rerun the image 
 
-
-5. Added new ProxyPass for my LLaMa2 models:
-  # API Proxy
-```
-  <IfModule mod_proxy.c>
-    ProxyPass /.well-known !
-  </IfModule>
-  # END: Support domain renewal when using mod_proxy without Location
-
-  # API Proxy
-  ProxyPass /sms-monkey http://127.0.0.1:5000/sms-monkey
-  ProxyPassReverse /sms-monkey http://127.0.0.1:5000/sms-monkey
-
-  # ProxyPass /chat/completions http://127.0.0.1:10001/chat/completions
-  # ProxyPassReverse /chat/completions http://127.0.0.1:10001/chat/completions
-  # ProxyPass /completions http://127.0.0.1:10001/completions
-  # ProxyPassReverse /completions http://127.0.0.1:10001/completions
-
-  # BEGIN: Enable non-www to www redirection
-```
+5. You also need to run the model locally (code from `llama-monkey`) and expose it via RSSH Tunnel to the WordPress site.

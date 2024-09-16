@@ -5,7 +5,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 from monkeybot import ConversationManager
 
 app = Flask(__name__)
-cm = ConversationManager()
+cm = ConversationManager(verbose=False)
 
 limiter = Limiter(
     get_remote_address,
@@ -14,6 +14,15 @@ limiter = Limiter(
     # storage_uri="memory://",
 )
 
+
+
+
+@app.route("/api", methods=['GET'])
+@limiter.limit("1/minute", override_defaults=True)
+def hello_world():
+    return 'Hello, World!'
+
+
 @app.route("/sms-monkey", methods=['GET', 'POST'])
 @limiter.limit("20/minute", override_defaults=True)
 def sms_reply():
@@ -21,7 +30,12 @@ def sms_reply():
     user_input = request.values.get('Body', None)
     user_number = request.values.get('From', None)
     print(f'Incoming message from {user_number}: """{user_input}"""', flush=True)
-    trimmed_ai_response, convo_length = cm.complete_chat(user_input, user_number)
+    try:
+        trimmed_ai_response, convo_length = cm.complete_chat(user_input, user_number)
+    except Exception as e:
+        raise e
+        trimmed_ai_response = 'Gutentag!'
+        convo_length = 2
     print(f'Response (msg #{convo_length}) to {user_number}: """{trimmed_ai_response}"""', flush=True)
     # print(body)
     # print('headers', request.headers, flush=True)
